@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { ClerkProvider } from '@clerk/nextjs'
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { onboardUser } from "@/modules/auth/auth.actions";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,12 +18,11 @@ export const metadata: Metadata = {
   description: "PromptUI is an AI-powered tool that converts natural language prompts into ready-to-use UI components and layouts.",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  await onboardUser();
   return (
     <ClerkProvider>
       <html lang="en">

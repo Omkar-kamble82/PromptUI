@@ -1,10 +1,18 @@
 import Navbar from "@/components/Shared/Navbar";
 import { Button } from "@/components/ui/button";
-import { UserButton } from "@clerk/nextjs";
+import { currentUser } from "@clerk/nextjs/server";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+export default async function Home() {
+
+  const user = await currentUser()
+  if (user) {
+    redirect('/project')
+    return
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -28,7 +36,6 @@ export default function Home() {
             </Button>
           </Link>
         </div>
-        <UserButton/>
       </main>
     </div>
   );

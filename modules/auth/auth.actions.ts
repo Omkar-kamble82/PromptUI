@@ -15,6 +15,7 @@ export const onboardUser = async () => {
         if (existingUser) {
             return existingUser
         }
+        console.log("Onboarding new user:")
         const newUser = await prisma.user.upsert({
             where: {clerkId: id},
             update: {},
