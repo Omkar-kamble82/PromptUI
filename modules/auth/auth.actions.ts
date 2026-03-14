@@ -1,5 +1,6 @@
 "use server"
 
+import { inngest } from "@/inngest/client"
 import { prisma } from "@/lib/prisma"
 import { currentUser } from "@clerk/nextjs/server"
 
@@ -55,3 +56,9 @@ export const getCurrentUser = async () => {
     throw new Error("Failed to fetch user")
   }
 };
+
+export const onInvoke = async () => {
+    await inngest.send({
+        name: "agent/hello",
+    })
+}

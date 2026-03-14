@@ -1,6 +1,7 @@
 "use client"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
+import { onInvoke } from "@/modules/auth/auth.actions"
 import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -27,6 +28,7 @@ import {
   InputGroupTextarea,
 } from "@/components/ui/input-group"
 import { useEffect } from "react"
+import { inngest } from "@/inngest/client"
 
 const formSchema = z.object({
   description: z
@@ -120,6 +122,12 @@ const ProjectForm = ({ initialPrompt }: { initialPrompt: string }) => {
             className="bg-[#ff4136] hover:bg-[#e6362c] text-white"
             >
             Generate Project
+            </Button>
+            <Button
+            onClick={onInvoke}
+            className="bg-[#ff4136] hover:bg-[#e6362c] text-white"
+            >
+            Invoke
             </Button>
         </CardFooter>
     </Card>
