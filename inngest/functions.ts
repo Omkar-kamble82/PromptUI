@@ -138,7 +138,7 @@ export const codeAgent = inngest.createFunction(
 
     const sandboxUrl = await step.run("Get sandbox URL", async () => {
       const sandbox = await Sandbox.connect(sandboxId)
-      await new Promise(resolve => setTimeout(resolve, 10000))
+      await new Promise(resolve => setTimeout(resolve, 30000))
       const host = await sandbox.getHost(3000)
       return `https://${host}`
     })
