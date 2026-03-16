@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import ProjectView from '@/components/Shared/ProjectView'
 
 const Page = async({params} : { params: Promise<{ projectId: string }> }) => {
