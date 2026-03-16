@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import ProjectForm from "@/components/Shared/ProjectForm"
+import { toast } from "sonner"
 
 type Template = {
   emoji: string
@@ -55,10 +56,21 @@ const Templates = [
 export default function ProjectBuilder() {
   const [prompt, setPrompt] = useState("")
 
+  const setPromptOnClick = (templatePrompt: string) => {
+    setPrompt(templatePrompt)
+    toast.success("Prompt set! Scroll up to see the form.", {
+      style: {
+        background: "white",
+        color: "black",
+        border: "1px solid #e5e7eb",
+      }
+    })
+  }
+
   return (
     <>
       <div className="mb-6 w-full max-w-2xl">
-        <ProjectForm initialPrompt={prompt} />
+        <ProjectForm key={prompt} initialPrompt={prompt} />
       </div>
         <h1 className="text-xl font-bold md:text-2xl">
             Want <span className="text-[#ff4136]">Idea's?</span>
@@ -67,7 +79,7 @@ export default function ProjectBuilder() {
         {Templates.map((template, index) => (
           <button
             key={index}
-            onClick={() => setPrompt(template.prompt)}
+            onClick={() => setPromptOnClick(template.prompt)}
             className="group relative p-5 rounded-2xl border-2 cursor-pointer border-neutral-200 bg-white 
             hover:border-[#ff4136]/40 hover:shadow-lg hover:-translate-y-0.5
             transition-all duration-200 text-left"

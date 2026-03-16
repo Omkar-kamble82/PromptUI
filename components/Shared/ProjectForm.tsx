@@ -1,9 +1,8 @@
 "use client"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Controller, useForm } from "react-hook-form"
-import { onInvoke } from "@/modules/auth/auth.actions"
 import * as z from "zod"
-
+import { Spinner } from "@/components/ui/spinner"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -20,15 +19,16 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field"
-
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupText,
   InputGroupTextarea,
 } from "@/components/ui/input-group"
-import { useEffect } from "react"
-import { inngest } from "@/inngest/client"
+import { useCreateProject } from "@/modules/project/hooks"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
 const formSchema = z.object({
   description: z
@@ -39,22 +39,31 @@ const formSchema = z.object({
 
 const ProjectForm = ({ initialPrompt }: { initialPrompt: string }) => {
 
+    const router = useRouter()
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-        description: "",
+            description: initialPrompt || "",  
         },
+        mode: "onChange",
     })
 
-    useEffect(() => {
-        if (initialPrompt) {
-        form.setValue("description", initialPrompt)
-        }
-    }, [initialPrompt, form])
+    const {mutateAsync, isPending} = useCreateProject()
 
-    function onSubmit(data: z.infer<typeof formSchema>) {
-        console.log("Project prompt:", data)
+    async function onSubmit(data: z.infer<typeof formSchema>) {
+        try {
+            const res = await mutateAsync(data.description)
+            toast.success("Project created successfully!") 
+            form.reset()
+            router.push(`/projects/${res.id}`) 
+        } catch (error) {
+            console.error("Error creating project:", error)
+            toast.error("Failed to create project.")
+        }
     }
+
+    const isButtonDisabled = isPending || !form.watch("description").trim();
 
   return (
     <Card className="mt-4 border-neutral-200 shadow-sm">
@@ -106,7 +115,7 @@ const ProjectForm = ({ initialPrompt }: { initialPrompt: string }) => {
                     </FieldDescription>
 
                     {fieldState.invalid && (
-                        <FieldError errors={[fieldState.error]} />
+                        <FieldError className="text-rose-500" errors={[fieldState.error]} />
                     )}
                     </Field>
                 )}
@@ -117,17 +126,12 @@ const ProjectForm = ({ initialPrompt }: { initialPrompt: string }) => {
 
         <CardFooter className="flex justify-end">
             <Button
-            type="submit"
-            form="project-form"
-            className="bg-[#ff4136] hover:bg-[#e6362c] text-white"
-            >
-            Generate Project
-            </Button>
-            <Button
-            onClick={onInvoke}
-            className="bg-[#ff4136] hover:bg-[#e6362c] text-white"
-            >
-            Invoke
+                type="submit"
+                form="project-form"
+                className={cn("bg-[#ff4136] hover:bg-[#e6362c] text-white", isButtonDisabled && "cursor-not-allowed opacity-50")}
+                disabled={isButtonDisabled}
+                >
+                {isPending ? (<Spinner className="h-4 w-4" />) : "Create Project"}
             </Button>
         </CardFooter>
     </Card>

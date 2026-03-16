@@ -23,3 +23,44 @@ export function lastAssistantTextMessageContent(result: AgentResult): string | u
 
   return undefined
 }
+
+type TreeNode = { [key: string]: TreeNode | null };
+export type TreeItem = string | [string, ...TreeItem[]];
+
+export function convertFilesToTreeItems(files: Record<string, unknown>): TreeItem[] {
+  const tree: TreeNode = {};
+  const sortedPaths = Object.keys(files).sort();
+
+  for (const filePath of sortedPaths) {
+    const parts = filePath.split("/");
+    let current = tree;
+
+    for (let i = 0; i < parts.length - 1; i++) {
+      const part = parts[i];
+      if (!current[part]) {
+        current[part] = {};
+      }
+      current = current[part] as TreeNode;
+    }
+
+    const fileName = parts[parts.length - 1];
+    current[fileName] = null;
+  }
+
+  function convertNode(node: TreeNode): TreeItem[] {
+    const children: TreeItem[] = [];
+
+    for (const [key, value] of Object.entries(node)) {
+      if (value === null) {
+        children.push(key);
+      } else {
+        const subTree = convertNode(value);
+        children.push([key, ...subTree]);
+      }
+    }
+
+    return children;
+  }
+
+  return convertNode(tree);
+}

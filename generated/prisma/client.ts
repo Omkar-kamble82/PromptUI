@@ -46,3 +46,23 @@ export { Prisma }
  * 
  */
 export type User = Prisma.UserModel
+/**
+ * Model Project
+ * 
+ */
+export type Project = Prisma.ProjectModel
+/**
+ * Model Message
+ * 
+ */
+export type Message = Prisma.MessageModel
+/**
+ * Model Fragment
+ * 
+ */
+export type Fragment = Prisma.FragmentModel
+/**
+ * Model Usage
+ * 
+ */
+export type Usage = Prisma.UsageModel
