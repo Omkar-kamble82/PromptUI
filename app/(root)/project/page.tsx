@@ -1,9 +1,7 @@
+export const dynamic = "force-dynamic";
+
 import AuthNav from "@/components/Shared/AuthNavbar"
-import Image from "next/image"
-import { Separator } from "@/components/ui/separator"
-import ProjectForm from "@/components/Shared/ProjectForm"
 import ProjectBuilder from "@/components/Shared/Project-builder"
-import MyProjects from "@/components/Shared/Myproject"
 
 type Props = {}
 

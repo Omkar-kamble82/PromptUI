@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import AuthNav from '@/components/Shared/AuthNavbar'
 import MyProjects from '@/components/Shared/Myproject'
 
