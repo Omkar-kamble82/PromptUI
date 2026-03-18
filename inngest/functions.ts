@@ -13,12 +13,12 @@ export const codeAgent = inngest.createFunction(
   async ({ event, step }) => {
     const sandboxId = await step.run("Create sandbox", async () => {
       const sandbox = await Sandbox.create(process.env.E2B_SANDBOX_ID!, {
-        timeoutMs: 60000 * 30 
+        timeoutMs: 60000 * 30
       })
       return sandbox.sandboxId
     })
 
-     const previousMessages = await step.run(
+    const previousMessages = await step.run(
       "get-previous-messages",
       async () => {
         const formattedMessages = [];
@@ -60,7 +60,7 @@ export const codeAgent = inngest.createFunction(
       system: SIMPLE_PROMPT,
       model: openai({
         model: "stepfun/step-3.5-flash:free",
-        baseUrl: "https://openrouter.ai/api/v1", 
+        baseUrl: "https://openrouter.ai/api/v1",
         apiKey: process.env.OPENROUTER_API_KEY,
       }),
       tools: [
@@ -112,9 +112,15 @@ export const codeAgent = inngest.createFunction(
               }
             })
 
+            // FIX: was returning void — now explicitly updates state and returns confirmation
             if (typeof newFiles === "object" && network) {
-              network.state.data.files = newFiles
+              network.state.data.files = newFiles as Record<string, string>
             }
+
+            return JSON.stringify({
+              success: true,
+              filesWritten: files.map(f => f.path),
+            })
           },
         }),
 
@@ -171,7 +177,25 @@ export const codeAgent = inngest.createFunction(
 
     const result = await network.run(event.data.value, { state })
 
-      const fragmentTitleGenerator = createAgent({
+    // FIX: Re-write all files from state into the sandbox before building.
+    // The agent may have written files during its run, but sandbox sessions
+    // are stateless reconnects. This guarantees all files are present at build time.
+    await step.run("sync-files-to-sandbox", async () => {
+      const files = result.state.data.files
+      if (!files || Object.keys(files).length === 0) {
+        console.warn("No files in state to sync — agent may not have written any files.")
+        return
+      }
+
+      const sandbox = await Sandbox.connect(sandboxId)
+      for (const [path, content] of Object.entries(files)) {
+        console.log(`Syncing file: ${path}`)
+        await sandbox.files.write(path, content)
+      }
+      console.log(`Synced ${Object.keys(files).length} files to sandbox.`)
+    })
+
+    const fragmentTitleGenerator = createAgent({
       name: "fragment-title-generator",
       description: "Generate a title for the fragment",
       system: FRAGMENT_TITLE_PROMPT,
